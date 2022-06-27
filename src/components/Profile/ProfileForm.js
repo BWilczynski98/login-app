@@ -7,7 +7,7 @@ const ProfileForm = () => {
   const { authentication, notifications } = useContext(AuthContext);
   const { updateUserPassword } = authentication;
   const { success, setSuccess } = notifications;
-
+  
   const submitHandler = (event) => {
     event.preventDefault();
     updateUserPassword(newPassword);
