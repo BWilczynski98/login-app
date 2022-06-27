@@ -1,13 +1,14 @@
 import React, { createContext, useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, onAuthStateChanged } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendEmailVerification, onAuthStateChanged, updatePassword } from 'firebase/auth';
 import { auth } from '../firebase/firebase-config';
 export const AuthContext = createContext();
 
 export const AuthStore = ({ children }) => {
     const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(null);
     const [isLogged, setIsLogged] = useState(false);
-
-
+    const user = auth.currentUser;
+    console.log(user);
     const registerNewAccount = async (email, password) => {
         try {
             const response = await createUserWithEmailAndPassword(auth, email, password);
@@ -32,6 +33,7 @@ export const AuthStore = ({ children }) => {
             await signOut(auth);
             validUserAccount();
             console.log('successful logout');
+
         } catch (error) {
             setError(error.message);
         }
@@ -42,17 +44,27 @@ export const AuthStore = ({ children }) => {
         onAuthStateChanged(auth, (user) => {
             console.log('im in param');
             if (user) {
-                if (user.emailVerified) {
-                    setIsLogged(true);
-                } else {
-                    setIsLogged(false)
-                    setError('Unverified email address')
-                }
+                // if (user.emailVerified) {
+                //     setIsLogged(true);
+                // } else {
+                //     setIsLogged(false)
+                //     setError('Unverified email address')
+                // }
+                setIsLogged(true);
             } else {
                 setIsLogged(false);
             };
         });
     };
+
+    const updateUserPassword = async (newPassword) => {
+        try {
+            await updatePassword(user, newPassword)
+        } catch (error) {
+            console.log(error.message);
+            setError(error.message)
+        }
+    }
 
     console.log(error);
 
@@ -61,12 +73,15 @@ export const AuthStore = ({ children }) => {
             registerNewAccount,
             login,
             logout,
+            updateUserPassword,
         },
         user: {
             isLogged,
         },
         notifications: {
             error,
+            success,
+            setSuccess,
         }
     };
 
