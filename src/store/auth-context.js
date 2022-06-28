@@ -8,7 +8,9 @@ export const AuthStore = ({ children }) => {
     const [success, setSuccess] = useState(null);
     const [isLogged, setIsLogged] = useState(false);
     const user = auth.currentUser;
+    const initialToken = localStorage.getItem('token');
     console.log(user);
+    console.log(initialToken);
     const registerNewAccount = async (email, password) => {
         try {
             const response = await createUserWithEmailAndPassword(auth, email, password);
@@ -21,7 +23,11 @@ export const AuthStore = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            const user = await signInWithEmailAndPassword(auth, email, password);
+            const token = user._tokenResponse.idToken;
+            console.log(token);
+            localStorage.setItem('token', token);
+            setIsLogged(true)
             validUserAccount();
         } catch (error) {
             setError(error.message)
@@ -41,20 +47,20 @@ export const AuthStore = ({ children }) => {
     };
 
     const validUserAccount = () => {
-        onAuthStateChanged(auth, (user) => {
-            console.log('im in param');
-            if (user) {
-                // if (user.emailVerified) {
-                //     setIsLogged(true);
-                // } else {
-                //     setIsLogged(false)
-                //     setError('Unverified email address')
-                // }
-                setIsLogged(true);
-            } else {
-                setIsLogged(false);
-            };
-        });
+        // onAuthStateChanged(auth, (user) => {
+        //     console.log('im in param');
+        //     if (initialToken) {
+        //         // if (user.emailVerified) {
+        //         //     setIsLogged(true);
+        //         // } else {
+        //         //     setIsLogged(false)
+        //         //     setError('Unverified email address')
+        //         // }
+        //         setIsLogged(true);
+        //     } else {
+        //         setIsLogged(false);
+        //     };
+        // });
     };
 
     const updateUserPassword = async (newPassword) => {
